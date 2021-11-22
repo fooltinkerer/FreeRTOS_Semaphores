@@ -70,10 +70,10 @@
 #define TASK2_STACK_SIZE        ( 1000UL )
 
 /* Activation of semaphore patterns - only one at a time can be active  */
-#undef BINARY_SEMAPHORES    ( 1 )
-#define COUNTING_SEMAPHORES ( 1 )
-#undef MUTEX_PATTERN        ( 1 )
-#define RENDEZ_VOUS_PATTERN  ( 1 )
+#undef BINARY_SEMAPHORES    
+#define COUNTING_SEMAPHORES 
+#undef MUTEX_PATTERN        
+#define RENDEZ_VOUS_PATTERN 
 
 /* Throw an error in case multiple patterns are active by mistake */
 #if defined(COUNTING_SEMAPHORES) && defined(MUTEX_PATTERN) && defined(BINARY_SEMAPHORES)
@@ -108,6 +108,26 @@ static char anInitialText[ ] = "What is the name of the story?";
 static char aBanner[]        = "**************************************************************"; 
 static char printoutText[MAX_STRING_SIZE];
 
+/*-----------------------------------------------------------*/
+
+void slowStringCopy(char* dest, char* src, int textSize)
+{
+    int i,max = 0;
+
+    /* Let's reset the content of the destination to '\0' - so no need to set it later*/
+    memset(dest, '\0', MAX_STRING_SIZE);
+    /* Make sure we do not overflow */
+    max = ( textSize < MAX_STRING_SIZE) ? textSize : MAX_STRING_SIZE - 1;
+    while (i < max)
+    {
+        dest[i] =  src[i];
+        i++;
+        /* Let's make a slow copy */
+        for(long long k=0; k<9223372036854775807;k++){};
+    }
+}
+/*-----------------------------------------------------------*/
+
 void main_semaphores( void )
 {
     /* Initialize */
@@ -116,7 +136,7 @@ void main_semaphores( void )
 
 #ifdef BINARY_SEMAPHORES
     mainSemaphore = xSemaphoreCreateBinary();
-#elif COUNTING_SEMAPHORES
+#elif defined(COUNTING_SEMAPHORES)
     /* Initialize the semaphore to max_value of 1 and initial value of 1 */
     mainSemaphore = xSemaphoreCreateCounting(1, 1);
 #endif    
@@ -266,20 +286,3 @@ static void prvTask2(void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
-void slowStringCopy(char* dest, char* src, int textSize)
-{
-    int i,max = 0;
-
-    /* Let's reset the content of the destination to '\0' - so no need to set it later*/
-    memset(dest, '\0', MAX_STRING_SIZE);
-    /* Make sure we do not overflow */
-    max = ( textSize < MAX_STRING_SIZE) ? textSize : MAX_STRING_SIZE - 1;
-    while (i < max)
-    {
-        dest[i] =  src[i];
-        i++;
-        /* Let's make a slow copy */
-        for(long long k=0; k<9223372036854775807;k++){};
-    }
-}
-/*-----------------------------------------------------------*/
