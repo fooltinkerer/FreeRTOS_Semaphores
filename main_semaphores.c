@@ -73,11 +73,9 @@
 #define BINARY_SEMAPHORES   ( 1 )
 #undef MUTEX_PATTERN       ( 1 )
 #undef RENDEZ_VOUS_PATTERN ( 1 )
-#undef MULTIPLEX_PATTERN   ( 1 )
-#undef BARRIER_PATTERN     ( 1 )
 
 /* Throw an error in case multiple patterns are active by mistake */
-#if (RENDEZ_VOUS_PATTERN + MUTEX_PATTERN + MULTIPLEX_PATTERN + BARRIER_PATTERN > 1)
+#if (RENDEZ_VOUS_PATTERN + MUTEX_PATTERN + RENDEZ_VOUS_PATTERN > 1)
     #error "Only one pattern at a time can be active! Please reduce this usage to 0 or 1"
 #endif
 
