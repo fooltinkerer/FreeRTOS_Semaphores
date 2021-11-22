@@ -70,9 +70,10 @@
 #define TASK2_STACK_SIZE        ( 1000UL )
 
 /* Activation of semaphore patterns - only one at a time can be active  */
-#define BINARY_SEMAPHORES   ( 1 )
-#undef MUTEX_PATTERN       ( 1 )
-#undef RENDEZ_VOUS_PATTERN ( 1 )
+#undef BINARY_SEMAPHORES    ( 1 )
+#define COUNTING_SEMAPHORES ( 1 )
+#undef MUTEX_PATTERN        ( 1 )
+#undef RENDEZ_VOUS_PATTERN  ( 1 )
 
 /* Throw an error in case multiple patterns are active by mistake */
 #if (RENDEZ_VOUS_PATTERN + MUTEX_PATTERN + RENDEZ_VOUS_PATTERN > 1)
@@ -87,7 +88,8 @@
 static void prvTask1( void * pvParameters );
 static void prvTask2( void * pvParameters );
 
-#ifdef BINARY_SEMAPHORES
+/* No matter the pattern, the type is always the same */
+#if defined(BINARY_SEMAPHORES) || defined(MUTEX_PATTERN) || defined(COUNTING_SEMAPHORES)
 static SemaphoreHandle_t mainSemaphore = 0;
 #endif
 
@@ -109,10 +111,16 @@ void main_semaphores( void )
 
 #ifdef BINARY_SEMAPHORES
     mainSemaphore = xSemaphoreCreateBinary();
+#elif COUNTING_SEMAPHORES
+    /* Initialize the semaphore to max_value of 1 and initial value of 1 */
+    mainSemaphore = xSemaphoreCreateCounting(1, 1);
+#endif    
     if (mainSemaphore == 0) 
     {
         printf("Resouce not created\n");
     }
+/* Calling give() is only necessary on binary semaphores as their initial value is 0 */    
+#ifdef BINARY_SEMAPHORES
     else
     {
             /* Semaphore needs to be given once so as to make the system work*/  
@@ -172,7 +180,7 @@ static void prvTask1(void * pvParameters )
         /* console_print( "This is task 1\n" ); */
 
         /* Copy text & printout - let's make sure there is no overrun */
-#ifdef BINARY_SEMAPHORES
+#if defined(BINARY_SEMAPHORES) || defined(COUNTING_SEMAPHORES)
         /* If we can get the semaphore, we change the string */
         if (xSemaphoreTake(mainSemaphore, ( TickType_t ) 0))
         {
@@ -204,7 +212,7 @@ static void prvTask2(void * pvParameters )
 
     for( ; ; )
     {
-#ifdef BINARY_SEMAPHORES        
+#if defined(BINARY_SEMAPHORES) || defined(COUNTING_SEMAPHORES)
         /* If we can get the semaphore, we change the string */
         if (xSemaphoreTake(mainSemaphore, ( TickType_t ) 0))
         {
