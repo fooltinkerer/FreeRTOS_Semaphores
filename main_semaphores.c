@@ -73,7 +73,7 @@
 #undef BINARY_SEMAPHORES    ( 1 )
 #define COUNTING_SEMAPHORES ( 1 )
 #undef MUTEX_PATTERN        ( 1 )
-#undef RENDEZ_VOUS_PATTERN  ( 1 )
+#define RENDEZ_VOUS_PATTERN  ( 1 )
 
 /* Throw an error in case multiple patterns are active by mistake */
 #if defined(COUNTING_SEMAPHORES) && defined(MUTEX_PATTERN) && defined(BINARY_SEMAPHORES)
@@ -91,6 +91,11 @@ static void prvTask2( void * pvParameters );
 /* No matter the pattern, the type is always the same */
 #if defined(BINARY_SEMAPHORES) || defined(MUTEX_PATTERN) || defined(COUNTING_SEMAPHORES)
 static SemaphoreHandle_t mainSemaphore = 0;
+#endif
+
+#ifdef RENDEZ_VOUS_PATTERN
+static SemaphoreHandle_t task1Ready = 0;
+static SemaphoreHandle_t task2Ready = 0;
 #endif
 
 /*-----------------------------------------------------------*/
@@ -127,6 +132,13 @@ void main_semaphores( void )
             xSemaphoreGive(mainSemaphore);
     }
 #endif
+
+#ifdef RENDEZ_VOUS_PATTERN
+    /* Initialize the semaphores to max_value of 1 and initial value of 1 */
+    task1Ready = xSemaphoreCreateCounting(1, 1);
+    task2Ready = xSemaphoreCreateCounting(1, 1);
+#endif 
+
     /* Print out the initial message */
     printf("%s \n", &aBanner[0]); 
     printf("The initial magic sentence is: %s \n", &printoutText[0]); 
@@ -172,7 +184,18 @@ static void prvTask1(void * pvParameters )
     int textLength = strlen(task1Text);
 
     /* Announce task is ready */   
-    printf("\nThis is task 1 - launching\n\n" );
+    printf("\nThis is task 1 - launching\n" );
+    fflush(stdout);
+
+#ifdef RENDEZ_VOUS_PATTERN
+    /* Add delay to represent some long lasting activity */
+    vTaskDelay(100 * A_100_MS_DELAY);
+    
+    /* Signal readiness and wait for the other task to be done */
+    xSemaphoreGive(task1Ready);
+    xSemaphoreTake(task2Ready, ( TickType_t ) 100 * A_100_MS_DELAY);
+    printf("\nThis is task 1 - Rendez-vous : we are ready!\n\n" );
+#endif
 
     for( ; ; )
     {
@@ -208,7 +231,18 @@ static void prvTask2(void * pvParameters )
     int textLength = strlen(task2Text);
 
     /* Announce task is ready */
-    printf("\nThis is task 2 - launching\n\n" );
+    printf("\nThis is task 2 - launching\n" );
+    fflush(stdout);
+
+#ifdef RENDEZ_VOUS_PATTERN
+    /* Add delay to represent some long lasting activity */
+    vTaskDelay(100 * A_100_MS_DELAY);    
+
+    /* Signal readiness and wait for the other task to be done */
+    xSemaphoreGive(task2Ready);
+    xSemaphoreTake(task1Ready, ( TickType_t ) 10 * A_100_MS_DELAY);
+    printf("\nThis is task 1 - Rendez-vous : we are ready!\n\n" );
+#endif 
 
     for( ; ; )
     {
