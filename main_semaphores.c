@@ -100,8 +100,8 @@ static SemaphoreHandle_t task2Ready = 0;
 /* Maximum size of variable*/
 #define MAX_STRING_SIZE ( 64UL )
 
-static char task1Text[ ]     = "Little girl with a red hat is walking through the forest";
-static char task2Text[ ]     = "A wolf is coming dressed up like it were Carnival";
+static char littleRedHatText[ ]     = "Little girl with a red hat is walking through the forest";
+static char dressedUpWolfText[ ]     = "A wolf is coming dressed up like it were Carnival";
 static char anInitialText[ ] = "What is the name of the story?";
 static char aBanner[]        = "**************************************************************"; 
 static char printoutText[MAX_STRING_SIZE];
@@ -159,7 +159,7 @@ void main_semaphores( void )
 
     /* Print out the initial message */
     printf("%s \n", &aBanner[0]); 
-    printf("The initial magic sentence is: %s \n", &printoutText[0]); 
+    printf("The initial sentence printed out is: %s \n", &printoutText[0]); 
     printf("%s \n", &aBanner[0]); 
 
     /* Start the two tasks as described in the comments at the top of this
@@ -197,9 +197,10 @@ static void prvTask1(void * pvParameters )
 {
      /* Prevent the compiler warning about the unused parameter. */
     ( void ) pvParameters;
+    int swapTick = 0;
     
     /* Local variables*/
-    int textLength = strlen(task1Text);
+    int textLength = strlen(littleRedHatText);
 
     /* Announce task is ready */   
     printf("\nThis is task 1 - launching\n" );
@@ -221,18 +222,26 @@ static void prvTask1(void * pvParameters )
         /* console_print( "This is task 1\n" ); */
 
         /* Copy text & printout - let's make sure there is no overrun */
-#if defined(BINARY_SEMAPHORES) || defined(COUNTING_SEMAPHORES)
-        /* If we can get the semaphore, we change the string */
-        if (xSemaphoreTake(mainSemaphore, ( TickType_t ) 0))
+        if (1 == swapTick )
         {
-            slowStringCopy(&printoutText[0], task1Text, textLength);
-            xSemaphoreGive(mainSemaphore);
-        }        
+  
+            swapTick = 0;
+#if defined(BINARY_SEMAPHORES) || defined(COUNTING_SEMAPHORES)
+            /* If we can get the semaphore, we change the string */
+            if (xSemaphoreTake(mainSemaphore, ( TickType_t ) 0))
+            {
+                slowStringCopy(&printoutText[0], littleRedHatText, textLength);
+                xSemaphoreGive(mainSemaphore);
+            }        
 #else        
-        slowStringCopy(&printoutText[0], task1Text, textLength);
+            slowStringCopy(&printoutText[0], littleRedHatText, textLength);
 #endif
-        printf("The magic sentence is: %s \n", &printoutText[0]);
-        fflush(stdout);   
+        } else
+        {
+            swapTick++;
+        }
+        printf("The sentence is: %s \n", &printoutText[0]);
+        fflush(stdout); 
         vTaskDelay(TASK1_FREQUENCY_MS);
     }
 }
@@ -246,7 +255,7 @@ static void prvTask2(void * pvParameters )
     ( void ) pvParameters;
     
     /* Local variables*/
-    int textLength = strlen(task2Text);
+    int textLength = strlen(dressedUpWolfText);
 
     /* Announce task is ready */
     printf("\nThis is task 2 - launching\n" );
@@ -268,7 +277,7 @@ static void prvTask2(void * pvParameters )
         /* If we can get the semaphore, we change the string */
         if (xSemaphoreTake(mainSemaphore, ( TickType_t ) 0))
         {
-            slowStringCopy(&printoutText[0], task2Text, textLength);
+            slowStringCopy(&printoutText[0], dressedUpWolfText, textLength);
             /* As this task is subject to the task as far as printing is concerned  */
             /* let's hold the semaphore a little longer for ensuring our string is  */
             /* visible */
@@ -276,7 +285,7 @@ static void prvTask2(void * pvParameters )
             xSemaphoreGive(mainSemaphore);
         } 
 #else                
-        slowStringCopy(&printoutText[0], task2Text, textLength);
+        slowStringCopy(&printoutText[0], dressedUpWolfText, textLength);
 #endif        
      
         vTaskDelay(TASK2_FREQUENCY_MS);
