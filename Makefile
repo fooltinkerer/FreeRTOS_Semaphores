@@ -1,5 +1,5 @@
 CC                    := gcc
-BIN                   := posix_demo
+BIN                   := semaphore_demo
 
 BUILD_DIR             := ./build
 BUILD_DIR_ABS         := $(abspath $(BUILD_DIR))
