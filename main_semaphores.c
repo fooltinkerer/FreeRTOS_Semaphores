@@ -71,9 +71,9 @@
 
 /* Activation of semaphore patterns - only one at a time can be active  */
 #undef BINARY_SEMAPHORES    
-#define COUNTING_SEMAPHORES 
+#undef COUNTING_SEMAPHORES 
 #undef MUTEX_PATTERN        
-#define RENDEZ_VOUS_PATTERN 
+#undef RENDEZ_VOUS_PATTERN 
 
 /* Throw an error in case multiple patterns are active by mistake */
 #if defined(COUNTING_SEMAPHORES) && defined(MUTEX_PATTERN) && defined(BINARY_SEMAPHORES)
@@ -89,9 +89,7 @@ static void prvTask1( void * pvParameters );
 static void prvTask2( void * pvParameters );
 
 /* No matter the pattern, the type is always the same */
-#if defined(BINARY_SEMAPHORES) || defined(MUTEX_PATTERN) || defined(COUNTING_SEMAPHORES)
 static SemaphoreHandle_t mainSemaphore = 0;
-#endif
 
 #ifdef RENDEZ_VOUS_PATTERN
 static SemaphoreHandle_t task1Ready = 0;
