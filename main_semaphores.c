@@ -72,7 +72,7 @@
 /* Activation of semaphore patterns - only one at a time can be active  */
 #undef BINARY_SEMAPHORES    
 #undef COUNTING_SEMAPHORES 
-#undef MUTEX_PATTERN        
+#define MUTEX_PATTERN        
 #undef RENDEZ_VOUS_PATTERN 
 
 /* Throw an error in case multiple patterns are active by mistake */
@@ -137,6 +137,9 @@ void main_semaphores( void )
 #elif defined(COUNTING_SEMAPHORES)
     /* Initialize the semaphore to max_value of 1 and initial value of 1 */
     mainSemaphore = xSemaphoreCreateCounting(1, 1);
+#elif defined(MUTEX_PATTERN)
+    /* Initialize the semaphore to max_value of 1 and initial value of 1 */
+    mainSemaphore = xSemaphoreCreateMutex();
 #endif    
     if (mainSemaphore == 0) 
     {
@@ -226,7 +229,7 @@ static void prvTask1(void * pvParameters )
         {
   
             swapTick = 0;
-#if defined(BINARY_SEMAPHORES) || defined(COUNTING_SEMAPHORES)
+#if defined(BINARY_SEMAPHORES) || defined(COUNTING_SEMAPHORES) || defined(MUTEX_PATTERN)
             /* If we can get the semaphore, we change the string */
             if (xSemaphoreTake(mainSemaphore, ( TickType_t ) 0))
             {
@@ -273,7 +276,7 @@ static void prvTask2(void * pvParameters )
 
     for( ; ; )
     {
-#if defined(BINARY_SEMAPHORES) || defined(COUNTING_SEMAPHORES)
+#if defined(BINARY_SEMAPHORES) || defined(COUNTING_SEMAPHORES) || defined(MUTEX_PATTERN)
         /* If we can get the semaphore, we change the string */
         if (xSemaphoreTake(mainSemaphore, ( TickType_t ) 0))
         {
