@@ -359,14 +359,5 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
 
 void handle_sigint( int signal )
 {
-    int xReturn;
-
-    xReturn = chdir( BUILD ); /* changing dir to place gmon.out inside build */
-
-    if( xReturn == -1 )
-    {
-        printf( "chdir into %s error is %d\n", BUILD, errno );
-    }
-
     exit( 2 );
 }
