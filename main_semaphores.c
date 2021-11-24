@@ -72,7 +72,7 @@
 /* Activation of semaphore patterns - only one at a time can be active  */
 #undef BINARY_SEMAPHORES    
 #undef COUNTING_SEMAPHORES 
-#define MUTEX_PATTERN        
+#undef MUTEX_PATTERN        
 #undef RENDEZ_VOUS_PATTERN 
 
 /* Throw an error in case multiple patterns are active by mistake */
@@ -130,7 +130,7 @@ void main_semaphores( void )
 {
     /* Initialize */
     memset(&printoutText, 0, sizeof(printoutText));
-    strncpy(&printoutText[0], anInitialText, strlen(anInitialText));
+    strncpy(&printoutText[0], anInitialText, MAX_STRING_SIZE);
 
 #ifdef BINARY_SEMAPHORES
     mainSemaphore = xSemaphoreCreateBinary();
