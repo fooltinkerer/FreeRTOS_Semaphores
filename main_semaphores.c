@@ -59,8 +59,8 @@
 
 /* The rate at which data is sent to the queue.  The times are converted from
  * milliseconds to ticks using the pdMS_TO_TICKS() macro. */
-#define TASK1_FREQUENCY_MS        pdMS_TO_TICKS( 1000UL )
-#define TASK2_FREQUENCY_MS        pdMS_TO_TICKS( 2000UL )
+#define TASK1_1S_PERIOD           pdMS_TO_TICKS( 1000UL )
+#define TASK2_2S_PERIOD           pdMS_TO_TICKS( 2000UL )
 #define A_100_MS_DELAY            pdMS_TO_TICKS( 100UL )
 
 
@@ -200,7 +200,6 @@ static void prvTask1(void * pvParameters )
 {
      /* Prevent the compiler warning about the unused parameter. */
     ( void ) pvParameters;
-    int swapTick = 0;
     
     /* Local variables*/
     int textLength = strlen(littleRedHatText);
@@ -218,6 +217,7 @@ static void prvTask1(void * pvParameters )
     xSemaphoreTake(task2Ready, ( TickType_t ) 100 * A_100_MS_DELAY);
     printf("\nThis is task 1 - Rendez-vous : we are ready!\n\n" );
 #endif
+    int swapTick = 0;
 
     for( ; ; )
     {
@@ -225,7 +225,7 @@ static void prvTask1(void * pvParameters )
         /* console_print( "This is task 1\n" ); */
 
         /* Copy text & printout - let's make sure there is no overrun */
-        if (1 == swapTick )
+        if (0 == swapTick )
         {
   
             swapTick = 0;
@@ -245,7 +245,7 @@ static void prvTask1(void * pvParameters )
         }
         printf("The sentence is: %s \n", &printoutText[0]);
         fflush(stdout); 
-        vTaskDelay(TASK1_FREQUENCY_MS);
+        vTaskDelay(TASK1_1S_PERIOD);
     }
 }
 
@@ -291,7 +291,7 @@ static void prvTask2(void * pvParameters )
         slowStringCopy(&printoutText[0], dressedUpWolfText, textLength);
 #endif        
      
-        vTaskDelay(TASK2_FREQUENCY_MS);
+        vTaskDelay(TASK2_2S_PERIOD);
     }
 }
 /*-----------------------------------------------------------*/

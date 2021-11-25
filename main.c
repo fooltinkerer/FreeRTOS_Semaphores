@@ -60,6 +60,7 @@
 
 /*-----------------------------------------------------------*/
 extern void main_semaphores( void );
+extern void main_readers_writer( void );
 static void traceOnEnter( void );
 
 /*
@@ -126,7 +127,7 @@ int main( void )
 
     /* Call the function creating the examples for semaphores - Task1 and Task2 */
     main_semaphores();
-
+    main_readers_writer();
 
     return 0;
 }

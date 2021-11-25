@@ -101,6 +101,8 @@ void changeContentOfNewspaper(void)
 
 void main_readers_writer( void )
 {
+    #define DO_NOTHING
+    #ifndef DO_NOTHING
     /* Initialize */
     int readerNr[4];
     
@@ -141,6 +143,7 @@ void main_readers_writer( void )
     for( ; ; )
     {
     }
+    #endif
 }
 
 /*-----------------------------------------------------------*/
