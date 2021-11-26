@@ -60,7 +60,8 @@
 /* The rate at which data is sent to the queue.  The times are converted from
  * milliseconds to ticks using the pdMS_TO_TICKS() macro. */
 #define TASK1_1S_PERIOD           pdMS_TO_TICKS( 1000UL )
-#define TASK2_2S_PERIOD           pdMS_TO_TICKS( 2000UL )
+/* 1.9s to "simulate" drifting of a task execution */
+#define TASK2_2S_PERIOD           pdMS_TO_TICKS( 1900UL ) 
 #define A_100_MS_DELAY            pdMS_TO_TICKS( 100UL )
 
 
@@ -120,7 +121,7 @@ void slowStringCopy(char* dest, char* src, int textSize)
     {
         dest[i] =  src[i];
         i++;
-        /* Let's make a slow copy */
+        /* Let's make a slow copy - is this really working or optimized by the compiler? ;-) */
         for(long long k=0; k<9223372036854775807;k++){};
     }
 }
@@ -225,7 +226,7 @@ static void prvTask1(void * pvParameters )
         /* console_print( "This is task 1\n" ); */
 
         /* Copy text & printout - let's make sure there is no overrun */
-        if (0 == swapTick )
+        if (1 == swapTick )
         {
   
             swapTick = 0;
